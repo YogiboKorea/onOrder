@@ -344,18 +344,16 @@ app.get('/api/online/system/last-update', async (req, res) => {
 });
 
 
-// 서버 실행
 connectDB().then(async () => {
-    // 앱이 리슨 중이 아니라면 포트 열기 (별도 서버로 실행 시)
-    // app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+    console.log('⏳ 서버 시작 시 엑셀 초기 동기화 시도...');
     
-    console.log('⏳ 엑셀 동기화 작업 시작...');
-    await syncExcelToDB(); 
-    console.log('🚀 온라인 동기화 작업이 완료되었습니다. (동기화 봇 종료 모드)');
-    
-    if (client) {
-        await client.close();
-        console.log('✅ MongoDB 연결이 닫혔습니다.');
-    }
-    process.exit(0); 
+    // 1. 서버가 켜질 때 DB에 엑셀 데이터를 한번 업데이트 합니다.
+    await syncExcelToDB().catch(err => {
+        console.log('⚠️ 초기 동기화 실패 (파일 없음 등). 일단 서버는 계속 실행합니다.');
+    }); 
+
+    // 2. ★ 제일 중요한 부분! 서버가 꺼지지 않고 계속 대기하도록 만듭니다.
+    app.listen(PORT, '0.0.0.0', () => {
+        console.log(`🚀 온라인 API 서버가 포트 ${PORT}에서 24시간 정상 대기 중입니다!`);
+    });
 });
