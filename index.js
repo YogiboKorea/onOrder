@@ -7,6 +7,8 @@ const fs = require('fs');
 const bodyParser = require('body-parser');
 const { MongoClient } = require('mongodb');
 
+const path = require('path');
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -15,7 +17,7 @@ app.use(express.static('public'));
 app.use(bodyParser.json());
 
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017'; 
-const DB_NAME = process.env.DB_NAME || 'test';
+const DB_NAME = process.env.DB_NAME || 'on';
 const ONLINE_DB_NAME = 'on'; // 온라인 데이터를 저장할 DB명
 
 let client;
