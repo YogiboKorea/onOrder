@@ -17,6 +17,7 @@
     "express": "^5.2.1",
     "moment-timezone": "^0.6.0",
     "mongodb": "^7.0.0",
+    "nodemon": "^3.1.14",
     "xlsx": "^0.18.5"
   }
 }
