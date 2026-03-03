@@ -21,7 +21,7 @@ const ONLINE_DB_NAME = 'on'; // 온라인 데이터를 저장할 DB명
 let client;
 let mongoClient; 
 
-const EXCEL_PATH = 'C:\\Users\\Yogibo Design\\Desktop\\온라인\\excel\\file\\onDorderData.xlsx';
+const EXCEL_PATH = path.join(__dirname, 'excel', 'file', 'onOrderData.xlsx');
 
 async function connectDB() {
     try {
