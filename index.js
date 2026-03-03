@@ -5,7 +5,7 @@ const xlsx = require('xlsx');
 const cors = require('cors');
 const fs = require('fs');
 const bodyParser = require('body-parser');
-const { MongoClient } = require('mongodb');
+const { MongoClient, ObjectId } = require('mongodb');
 
 const path = require('path');
 
@@ -340,6 +340,51 @@ app.get('/api/online/system/last-update', async (req, res) => {
         } else {
             res.json({ success: false, message: '기록 없음' });
         }
+    } catch (err) { res.status(500).json({ success: false }); }
+});
+
+
+// ============================================
+// [신규 추가] 온라인 이벤트 일정 관리 API
+// ============================================
+const eventsColName = 'events';
+
+// 이벤트 조회 (해당 월에 포함된 이벤트)
+app.get('/api/online/events', async (req, res) => {
+    try {
+        const { month } = req.query; // 예: '2026-03'
+        const dbOnline = mongoClient.db(ONLINE_DB_NAME);
+        // 시작일이나 종료일이 해당 월을 포함하는 데이터 검색
+        const query = month ? { $or: [ { startDate: { $regex: `^${month}` } }, { endDate: { $regex: `^${month}` } } ] } : {};
+        const events = await dbOnline.collection(eventsColName).find(query).sort({ startDate: 1 }).toArray();
+        res.json({ success: true, events });
+    } catch (err) { res.status(500).json({ success: false, error: err.message }); }
+});
+
+// 이벤트 등록
+app.post('/api/online/events', async (req, res) => {
+    try {
+        const dbOnline = mongoClient.db(ONLINE_DB_NAME);
+        await dbOnline.collection(eventsColName).insertOne(req.body);
+        res.json({ success: true });
+    } catch (err) { res.status(500).json({ success: false }); }
+});
+
+// 이벤트 수정
+app.put('/api/online/events/:id', async (req, res) => {
+    try {
+        const dbOnline = mongoClient.db(ONLINE_DB_NAME);
+        await dbOnline.collection(eventsColName).updateOne({ _id: new ObjectId(req.params.id) }, { $set: req.body });
+        res.json({ success: true });
+    } catch (err) { res.status(500).json({ success: false }); }
+});
+
+// 이벤트 삭제
+app.delete('/api/online/events/:id', async (req, res) => {
+    try {
+        const dbOnline = mongoClient.db(ONLINE_DB_NAME);
+        await dbOnline.collection(eventsColName).deleteOne({ _id: new ObjectId(req.params.id) });
+        res.json({ success: true });
     } catch (err) { res.status(500).json({ success: false }); }
 });
 
