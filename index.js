@@ -5,9 +5,9 @@ const xlsx = require('xlsx');
 const cors = require('cors');
 const fs = require('fs');
 const bodyParser = require('body-parser');
-const { MongoClient, ObjectId } = require('mongodb'); // ObjectId 필수!
+const { MongoClient, ObjectId } = require('mongodb');
 const path = require('path');
-const axios = require('axios'); // ★ Cafe24 연동을 위해 axios 추가
+const axios = require('axios');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -18,7 +18,7 @@ app.use(bodyParser.json());
 
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017'; 
 const DB_NAME = process.env.DB_NAME || 'on';
-const ONLINE_DB_NAME = 'on'; // 온라인 데이터를 저장할 DB명
+const ONLINE_DB_NAME = 'on';
 
 let client;
 let mongoClient; 
@@ -92,7 +92,8 @@ function calculateDateInfo(rawDate) {
     return { fullDate: `${year}-${mm}-${dd}`, month: `${year}-${mm}`, week: weekLabel };
 }
 
-function parseProduct(rawString, group1) {
+// ★ parseProduct 함수 - storeName 파라미터 추가하여 홈페이지 여부 확인
+function parseProduct(rawString, group1, memo = '', storeName = '') {
     let namePart = rawString || '-';
     let colorPart = '기타';
     if (typeof rawString === 'string' && rawString.includes('[')) {
@@ -108,15 +109,20 @@ function parseProduct(rawString, group1) {
     let category = '기타';
     const lowerName = String(namePart).toLowerCase();
     const lowerRaw = String(rawString || '').toLowerCase();
+    const lowerMemo = String(memo || '').toLowerCase(); // ★ 비고/특이사항 텍스트
     const g1 = (group1 || '').trim().toLowerCase(); 
+    const isHomepage = String(storeName).toLowerCase().includes('홈페이지');
 
-    // ★ 1순위: 리퍼 / 한정수량관 (상품명 기준 우선 분류)
-    if (lowerRaw.includes('리퍼') || lowerRaw.includes('[리퍼')) {
+    // ★ 1순위: 상품명 또는 (홈페이지인 경우) 특이사항에서 리퍼/한정수량 키워드 체크
+    if (lowerRaw.includes('리퍼') || lowerRaw.includes('[리퍼') || 
+        (isHomepage && lowerMemo.includes('리퍼'))) {
         category = '리퍼';
-    } else if (lowerRaw.includes('한정수량') || lowerRaw.includes('[한정') || lowerRaw.includes('last chance')) {
+    } else if (lowerRaw.includes('한정수량') || lowerRaw.includes('[한정') || 
+               lowerRaw.includes('last chance') ||
+               lowerMemo.includes('한정수량') || lowerMemo.includes('한정판')) {
         category = '한정수량관';
     }
-    // ★ 2순위: 기존 카테고리 분류 (리퍼/한정이 아닌 경우)
+    // 2순위: 기존 카테고리 분류
     else if (g1.includes('living') || g1.includes('리빙')) {
         category = '리빙';
     } else if (g1.includes('sofa') || g1.includes('소파')) {
@@ -132,7 +138,8 @@ function parseProduct(rawString, group1) {
     } else {
         // 상품명 기반 추가 분류
         if (lowerName.includes('소파') || lowerName.includes('맥스') || lowerName.includes('팟') || 
-            lowerName.includes('드롭') || lowerName.includes('미디') || lowerName.includes('슬림')) {
+            lowerName.includes('드롭') || lowerName.includes('미디') || lowerName.includes('슬림') ||
+            lowerName.includes('더블') || lowerName.includes('라운저') || lowerName.includes('피라미드')) {
             category = '소파';
         } else if (lowerName.includes('바디필로우') || lowerName.includes('롤') || lowerName.includes('캐터필러')) {
             category = '바디필로우';
@@ -149,6 +156,7 @@ function parseProduct(rawString, group1) {
     
     return { name: namePart, color: colorPart, category };
 }
+
 // --------------------------------------------------------------------------
 // 엑셀 -> DB 동기화 함수
 // --------------------------------------------------------------------------
@@ -180,7 +188,9 @@ async function syncExcelToDB() {
             qty: findHeaderKey(firstRow, ['수량']),
             amount: findHeaderKey(firstRow, ['합계', '판매금액']), 
             isSet: findHeaderKey(firstRow, ['세트']),
-            isCover: findHeaderKey(firstRow, ['커버', '동시'])
+            isCover: findHeaderKey(firstRow, ['커버', '동시']),
+            // ★ 비고 컬럼 키워드에 '특이사항' 추가
+            memo: findHeaderKey(firstRow, ['비고', '메모', 'memo', 'remark', '적요', '특이사항'])
         };
 
         if (!keys.orderNo || !keys.date) return 0;
@@ -200,13 +210,15 @@ async function syncExcelToDB() {
             const g1 = String(row[keys.group1] || '').trim();
             const g2 = String(row[keys.group2] || '').trim();
             const pName = String(row[keys.product] || '').trim();
+            const memoText = String(row[keys.memo] || '').trim(); // ★ 특이사항 텍스트 추출
 
             const isNegative = amt < 0; 
             const isExcluded = !isNegative && (pName.includes('쇼핑백') || pName.includes('shopping bag') || g1.includes('부자재'));
             
             if (isExcluded || (!pName && amt === 0)) return null; 
 
-            const { name, color, category } = parseProduct(row[keys.product], row[keys.group1]);
+            // ★ parseProduct에 memoText와 cleanStore(홈페이지 여부 확인용) 전달
+            const { name, color, category } = parseProduct(row[keys.product], row[keys.group1], memoText, cleanStore);
             const dInfo = calculateDateInfo(lastDate);
             
             if (dInfo.month !== '-') targetMonths.add(dInfo.month);
@@ -218,13 +230,23 @@ async function syncExcelToDB() {
             else if (g2Lower.includes('standard')) beadType = 'Standard';
 
             return {
-                rowId: currentRowIndex, orderNo: lastOrderNo, date: dInfo.fullDate, 
-                month: dInfo.month, week: dInfo.week, store: cleanStore || '미지정', 
-                productName: name, color: color, category: category, 
-                beadType: beadType, group1: g1, group2: g2, 
-                qty: Number(row[keys.qty]) || 0, amount: amt,
+                rowId: currentRowIndex, 
+                orderNo: lastOrderNo, 
+                date: dInfo.fullDate, 
+                month: dInfo.month, 
+                week: dInfo.week, 
+                store: cleanStore || '미지정', 
+                productName: name, 
+                color: color, 
+                category: category, 
+                beadType: beadType, 
+                group1: g1, 
+                group2: g2, 
+                qty: Number(row[keys.qty]) || 0, 
+                amount: amt,
                 isSet: (row[keys.isSet] && !String(row[keys.isSet]).includes('해당 없음')),
-                isCover: (row[keys.isCover] && !String(row[keys.isCover]).includes('해당 없음'))
+                isCover: (row[keys.isCover] && !String(row[keys.isCover]).includes('해당 없음')),
+                memo: memoText // ★ 비고(특이사항) 원본 저장
             };
         }).filter(d => d && d.week !== '날짜오류' && d.orderNo);
 
@@ -260,6 +282,13 @@ async function syncExcelToDB() {
                 { $set: { timestamp: new Date(), updatedCount: finalOrders.length } },
                 { upsert: true }
             );
+            
+            // ★ 리퍼/한정수량관 분류 결과 로그
+            const referCount = finalOrders.filter(o => o.category === '리퍼').length;
+            const limitedCount = finalOrders.filter(o => o.category === '한정수량관').length;
+            if (referCount > 0 || limitedCount > 0) {
+                console.log(`📦 특수 카테고리 분류: 리퍼 ${referCount}건, 한정수량관 ${limitedCount}건`);
+            }
         }
         return finalOrders.length;
     } catch (error) { throw error; }
@@ -269,15 +298,23 @@ async function syncExcelToDB() {
 // 📊 기존 매출 데이터 API
 // ============================================
 app.post('/api/online/sync', async (req, res) => {
-    try { const count = await syncExcelToDB(); res.json({ success: true, count }); } catch (err) { res.status(500).json({ success: false, error: err.message }); }
+    try { 
+        const count = await syncExcelToDB(); 
+        res.json({ success: true, count }); 
+    } catch (err) { 
+        res.status(500).json({ success: false, error: err.message }); 
+    }
 });
 
 app.get('/api/online/months', async (req, res) => {
     try {
         const dbOnline = mongoClient.db(ONLINE_DB_NAME);
         const months = await dbOnline.collection('orders').distinct('month');
-        months.sort().reverse(); res.json({ success: true, months });
-    } catch (err) { res.status(500).json({ success: false, months: [] }); }
+        months.sort().reverse(); 
+        res.json({ success: true, months });
+    } catch (err) { 
+        res.status(500).json({ success: false, months: [] }); 
+    }
 });
 
 app.get('/api/online/orders', async (req, res) => {
@@ -289,14 +326,18 @@ app.get('/api/online/orders', async (req, res) => {
         if (store && store !== 'all') query.store = store;
         const orders = await dbOnline.collection('orders').find(query).toArray();
         res.json({ success: true, orders });
-    } catch (err) { res.status(500).json({ success: false, error: err.message }); }
+    } catch (err) { 
+        res.status(500).json({ success: false, error: err.message }); 
+    }
 });
 
 app.get('/api/online/system/last-update', async (req, res) => {
     try {
         const meta = await mongoClient.db(ONLINE_DB_NAME).collection('system_metadata').findOne({ key: 'last_update_time' });
         res.json(meta && meta.timestamp ? { success: true, timestamp: meta.timestamp } : { success: false, message: '기록 없음' });
-    } catch (err) { res.status(500).json({ success: false }); }
+    } catch (err) { 
+        res.status(500).json({ success: false }); 
+    }
 });
 
 // ============================================
@@ -311,38 +352,48 @@ app.get('/api/online/events', async (req, res) => {
         const query = month ? { $or: [ { startDate: { $regex: `^${month}` } }, { endDate: { $regex: `^${month}` } } ] } : {};
         const events = await dbOnline.collection(eventsColName).find(query).sort({ startDate: 1 }).toArray();
         res.json({ success: true, events });
-    } catch (err) { res.status(500).json({ success: false, error: err.message }); }
+    } catch (err) { 
+        res.status(500).json({ success: false, error: err.message }); 
+    }
 });
 
 app.post('/api/online/events', async (req, res) => {
     try {
         await mongoClient.db(ONLINE_DB_NAME).collection(eventsColName).insertOne(req.body);
         res.json({ success: true });
-    } catch (err) { res.status(500).json({ success: false }); }
+    } catch (err) { 
+        res.status(500).json({ success: false }); 
+    }
 });
 
 app.put('/api/online/events/:id', async (req, res) => {
     try {
-        await mongoClient.db(ONLINE_DB_NAME).collection(eventsColName).updateOne({ _id: new ObjectId(req.params.id) }, { $set: req.body });
+        await mongoClient.db(ONLINE_DB_NAME).collection(eventsColName).updateOne(
+            { _id: new ObjectId(req.params.id) }, 
+            { $set: req.body }
+        );
         res.json({ success: true });
-    } catch (err) { res.status(500).json({ success: false }); }
+    } catch (err) { 
+        res.status(500).json({ success: false }); 
+    }
 });
 
 app.delete('/api/online/events/:id', async (req, res) => {
     try {
         await mongoClient.db(ONLINE_DB_NAME).collection(eventsColName).deleteOne({ _id: new ObjectId(req.params.id) });
         res.json({ success: true });
-    } catch (err) { res.status(500).json({ success: false }); }
+    } catch (err) { 
+        res.status(500).json({ success: false }); 
+    }
 });
 
 // ============================================
-// 🛒 [신규] Cafe24 상품 검색 연동 API (Proxy)
+// 🛒 Cafe24 상품 검색 연동 API (Proxy)
 // ============================================
 app.get('/api/online/cafe24/products', async (req, res) => {
     try {
         const { search } = req.query; 
         
-        // 환경변수에서 카페24 정보 가져오기 (클라우드타입 환경변수 설정 필수!)
         const mallId = process.env.CAFE24_MALL_ID;
         const accessToken = process.env.CAFE24_ACCESS_TOKEN;
 
@@ -353,24 +404,20 @@ app.get('/api/online/cafe24/products', async (req, res) => {
             });
         }
 
-        // Cafe24 API v2 (상품 목록 검색)
-        // 참고: display=T (진열중인 상품만)
         let url = `https://${mallId}.cafe24api.com/api/v2/admin/products?display=T`;
         
         if (search) {
             url += `&product_name=${encodeURIComponent(search)}`;
         }
 
-        // Cafe24로 요청 보내기
         const response = await axios.get(url, {
             headers: {
                 'Authorization': `Bearer ${accessToken}`,
                 'Content-Type': 'application/json',
-                'X-Cafe24-Api-Version': '2023-12-01' // 카페24 최신 API 버전
+                'X-Cafe24-Api-Version': '2023-12-01'
             }
         });
 
-        // 프론트엔드로 데이터 전달
         res.json({ success: true, products: response.data.products });
         
     } catch (error) {
@@ -378,7 +425,6 @@ app.get('/api/online/cafe24/products', async (req, res) => {
         res.status(500).json({ success: false, message: 'Cafe24 상품을 불러오는데 실패했습니다.' });
     }
 });
-
 
 // 서버 시작
 connectDB().then(async () => {
