@@ -1,53 +1,280 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Yogibo 팝업스토어 결제</title>
-    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>샐리필 팝업스토어 결제</title>
+    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
     <style>
         :root {
-            --primary: #4A90E2;
-            --primary-hover: #357ABD;
-            --bg-color: #F8FAFC;
+            --primary: #5A67D8;
+            --primary-hover: #434190;
+            --bg-color: #F7FAFC;
             --card-bg: #FFFFFF;
-            --text-main: #1E293B;
-            --text-muted: #64748B;
-            --danger: #EF4444;
-            --success: #10B981;
+            --text-main: #2D3748;
+            --text-muted: #718096;
+            --danger: #E53E3E;
             --border: #E2E8F0;
-            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-            --radius: 12px;
+            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+            --radius: 20px;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Pretendard', sans-serif; }
-        body { background-color: var(--bg-color); color: var(--text-main); line-height: 1.5; padding: 2rem; }
-        h1, h2 { color: var(--text-main); }
-        .container { max-width: 800px; margin: 0 auto; display: grid; gap: 1.5rem; }
-        .card { background: var(--card-bg); border-radius: var(--radius); padding: 2rem; box-shadow: var(--shadow); }
-        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
-        .btn-link { color: var(--primary); text-decoration: none; font-weight: 600; }
-        .form-group { margin-bottom: 1.25rem; }
-        label { display: block; margin-bottom: 0.5rem; font-weight: 500; font-size: 0.95rem; }
-        select, input { width: 100%; padding: 0.75rem 1rem; border: 1px solid var(--border); border-radius: 8px; font-size: 1rem; background-color: #F8FAFC; }
-        select:focus, input:focus { border-color: var(--primary); outline: none; background-color: white; }
-        button { background-color: var(--primary); color: white; border: none; padding: 0.875rem 1.5rem; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; width: 100%; transition: 0.2s; }
-        button:hover { background-color: var(--primary-hover); }
-        button.add-btn { background-color: #F1F5F9; color: var(--primary); border: 1px solid var(--primary); margin-top: 1rem; }
-        button.add-btn:hover { background-color: #E2E8F0; }
-        .cart-list { margin-top: 1.5rem; border-top: 1px solid var(--border); padding-top: 1.5rem; }
-        .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; background: #F8FAFC; border-radius: 6px; border: 1px solid var(--border); margin-bottom: 0.5rem; }
-        .cart-item-info { font-size: 0.9rem; }
-        .cart-item-info b { color: var(--primary); }
-        .cart-remove { background: none; border: none; color: var(--danger); font-size: 0.8rem; cursor: pointer; width: auto; padding: 0.2rem 0.5rem; }
-        .cart-remove:hover { text-decoration: underline; background: none; }
-        .total-price { text-align: right; font-size: 1.25rem; font-weight: 700; color: var(--primary); margin-top: 1rem; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Pretendard', -apple-system, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f6f8fd 0%, #f1f5f9 100%);
+            color: var(--text-main);
+            line-height: 1.6;
+            padding: 1.5rem 1rem;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            padding: 0 0.5rem;
+        }
+
+        h1 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #1A202C;
+            letter-spacing: -0.5px;
+        }
+
+        .btn-link {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.85rem;
+            background: white;
+            padding: 0.5rem 1rem;
+            border-radius: 99px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            transition: 0.2s;
+        }
+
+        .btn-link:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255, 255, 255, 0.7);
+        }
+
+        .card h2 {
+            font-size: 1.25rem;
+            margin-bottom: 1.5rem;
+            color: #1A202C;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .card h2::before {
+            content: "";
+            display: block;
+            width: 4px;
+            height: 18px;
+            background: var(--primary);
+            border-radius: 4px;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #4A5568;
+        }
+
+        select,
+        input {
+            width: 100%;
+            padding: 0.875rem 1.25rem;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            font-size: 1rem;
+            background-color: #F8FAFC;
+            transition: all 0.2s ease;
+            appearance: none;
+        }
+
+        select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23718096'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 1.2em;
+        }
+
+        select:focus,
+        input:focus {
+            border-color: var(--primary);
+            outline: none;
+            background-color: white;
+            box-shadow: 0 0 0 4px rgba(90, 103, 216, 0.1);
+        }
+
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, #434190 100%);
+            color: white;
+            border: none;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            font-size: 1.05rem;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 6px rgba(90, 103, 216, 0.25);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(90, 103, 216, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button.add-btn {
+            background: #EDF2F7;
+            color: var(--primary);
+            border: 2px dashed #CBD5E0;
+            box-shadow: none;
+            margin-top: 0.5rem;
+        }
+
+        button.add-btn:hover {
+            background: #E2E8F0;
+            border-color: var(--primary);
+            color: var(--primary-hover);
+            transform: none;
+        }
+
+        button.secondary-btn {
+            background: #718096;
+            box-shadow: none;
+            font-size: 0.95rem;
+            padding: 0.875rem 1.25rem;
+        }
+
+        button.secondary-btn:hover {
+            background: #4A5568;
+            transform: none;
+        }
+
+        .cart-list {
+            margin-top: 1.5rem;
+            border-top: 1px solid var(--border);
+            padding-top: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: #F8FAFC;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .cart-item-info {
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+
+        .cart-item-info b {
+            color: #1A202C;
+            display: block;
+            margin-bottom: 0.2rem;
+        }
+
+        .cart-remove {
+            background: #FEE2E2;
+            color: var(--danger);
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            box-shadow: none;
+            width: auto;
+        }
+
+        .cart-remove:hover {
+            background: #FECACA;
+            color: #DC2626;
+            transform: none;
+        }
+
+        .total-price {
+            text-align: right;
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: #EBF4FF;
+            border-radius: 12px;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 1rem 0.5rem;
+            }
+
+            .card {
+                padding: 1.5rem;
+                border-radius: 16px;
+            }
+
+            h1 {
+                font-size: 1.2rem;
+            }
+
+            .btn-link {
+                font-size: 0.8rem;
+                padding: 0.4rem 0.8rem;
+            }
+        }
     </style>
 </head>
+
 <body>
     <div class="container">
         <header>
-            <h1>Yogibo 현장 결제 시스템</h1>
+            <h1>Yogibo 팝업결제</h1>
             <a href="/popup_dashboard.html" class="btn-link">현황판 보러가기 &rarr;</a>
         </header>
 
@@ -63,16 +290,14 @@
             <div class="form-group">
                 <label>색상 선택</label>
                 <select id="color-input">
-                    <option value="화이트 미스트">화이트 미스트</option>
-                    <option value="블루문">블루문</option>
-                    <option value="핑크샌드">핑크샌드</option>
+                    <!-- Options populated via JS -->
                 </select>
             </div>
             <div class="form-group">
                 <label>수량 (1개 = 69,000원)</label>
                 <input type="number" id="qty-input" min="1" value="1">
             </div>
-            <button class="add-btn" onclick="addToCart()">+ 장바구니에 추가</button>
+            <button class="add-btn" onclick="addToCart()">+ 여기에 담기</button>
 
             <div class="cart-list" id="cart-list">
                 <!-- items go here -->
@@ -91,26 +316,49 @@
                 <input type="tel" id="c-phone" placeholder="010-1234-5678">
             </div>
             <div class="form-group">
-                <label>주소</label>
-                <input type="text" id="c-address" placeholder="서울시 강남구...">
+                <label>배송 주소</label>
+                <div style="display:flex; gap:0.5rem; margin-bottom:0.5rem;">
+                    <input type="text" id="c-address" placeholder="주소를 검색해주세요" readonly onclick="execDaumPostcode()">
+                    <button type="button" class="secondary-btn" onclick="execDaumPostcode()"
+                        style="width:100px; white-space:nowrap;">주소 검색</button>
+                </div>
+                <input type="text" id="c-address-detail" placeholder="상세주소 입력">
             </div>
             <div class="form-group">
                 <label>메모/특이사항</label>
                 <input type="text" id="c-memo" placeholder="요청사항 입력">
             </div>
-            
-            <button onclick="submitOrder()" style="margin-top: 1rem; padding: 1rem; font-size: 1.1rem;">주문 완료하기</button>
+
+            <button onclick="submitOrder()" style="margin-top: 1rem; padding: 1.25rem; font-size: 1.15rem;">주문
+                완료하기</button>
         </div>
     </div>
 
+    <!-- 다음 우편번호 서비스 -->
+    <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
     <script>
+        function execDaumPostcode() {
+            new daum.Postcode({
+                oncomplete: function (data) {
+                    document.getElementById('c-address').value = data.address;
+                    document.getElementById('c-address-detail').focus();
+                }
+            }).open();
+        }
+
+        if (window.location.protocol === 'file:') {
+            alert('오류: 파일을 직접 실행하셨습니다! 브라우저 주소창에 서버 주소(https://port-0-onorder-lzgmwhc4d9883c97.sel4.cloudtype.app/popup.html)를 입력하고 접속하셔야 재고가 연동됩니다.');
+            document.body.innerHTML = '<h1 style="color:red;text-align:center;margin-top:20vh;">파일을 직접 실행하여 재고 연동 API가 차단되었습니다.<br>서버 주소(https://port-0-...)로 다시 접속해주세요!</h1>';
+        }
+
         let cart = [];
         const PRICE = 69000;
         let serverInventory = {};
 
         async function fetchInventory() {
             try {
-                const res = await fetch('/api/popup/data');
+                // 추가: t 파라미터로 브라우저 캐싱 강제 방지
+                const res = await fetch('/api/popup/data?t=' + new Date().getTime());
                 const data = await res.json();
                 if (data.success) {
                     serverInventory = data.inventory;
@@ -125,31 +373,31 @@
             const product = document.getElementById('product-input').value;
             const colorSelect = document.getElementById('color-input');
             const currentColor = colorSelect.value;
-            
+
             colorSelect.innerHTML = '';
-            
+
             const colors = ['화이트 미스트', '블루문', '핑크샌드'];
-            
+
             colors.forEach(c => {
                 const key = `${product}_${c}`;
                 let remainText = '';
                 let disabled = '';
-                
+
                 if (serverInventory[key]) {
                     const info = serverInventory[key];
                     const remain = info.total - info.sold;
-                    
+
                     // Deduct items already in the cart
                     const inCart = cart.filter(item => item.product === product && item.color === c).reduce((sum, item) => sum + parseInt(item.qty), 0);
                     const actualRemain = remain - inCart;
-                    
+
                     remainText = ` (${actualRemain}ea)`;
                     if (actualRemain <= 0) disabled = 'disabled';
                 }
-                
+
                 colorSelect.innerHTML += `<option value="${c}" ${disabled}>${c}${remainText}</option>`;
             });
-            
+
             if (currentColor && colorSelect.querySelector(`option[value="${currentColor}"]:not([disabled])`)) {
                 colorSelect.value = currentColor;
             }
@@ -159,8 +407,8 @@
             const list = document.getElementById('cart-list');
             list.innerHTML = '';
             let total = 0;
-            
-            if(cart.length === 0) {
+
+            if (cart.length === 0) {
                 list.innerHTML = '<div style="text-align:center; color:#94a3b8; font-size:0.9rem;">장바구니가 비어있습니다.</div>';
             }
 
@@ -185,7 +433,7 @@
             const product = document.getElementById('product-input').value;
             const color = document.getElementById('color-input').value;
             const qty = parseInt(document.getElementById('qty-input').value) || 1;
-            
+
             cart.push({ product, color, qty });
             renderCart();
             // reset qty
@@ -205,7 +453,7 @@
                 items: cart,
                 customerName: document.getElementById('c-name').value,
                 customerPhone: document.getElementById('c-phone').value,
-                customerAddress: document.getElementById('c-address').value,
+                customerAddress: document.getElementById('c-address').value + ' ' + document.getElementById('c-address-detail').value,
                 memo: document.getElementById('c-memo').value,
             };
 
@@ -216,7 +464,7 @@
                     body: JSON.stringify(payload)
                 });
                 const result = await res.json();
-                
+
                 if (result.success) {
                     alert('성공적으로 등록되었습니다!');
                     cart = [];
@@ -224,6 +472,7 @@
                     document.getElementById('c-name').value = '';
                     document.getElementById('c-phone').value = '';
                     document.getElementById('c-address').value = '';
+                    document.getElementById('c-address-detail').value = '';
                     document.getElementById('c-memo').value = '';
                     fetchInventory(); // Reload inventory from server after purchase
                 } else {
@@ -239,6 +488,23 @@
         fetchInventory();
         // optionally refresh stock periodically
         setInterval(fetchInventory, 30000);
+
+        // Auto-hyphenation for phone numbers
+        document.getElementById('c-phone').addEventListener('input', function (e) {
+            let raw = e.target.value.replace(/[^0-9]/g, '');
+            let res = '';
+            if (raw.length < 4) {
+                res = raw;
+            } else if (raw.length < 7) {
+                res = raw.substr(0, 3) + '-' + raw.substr(3);
+            } else if (raw.length < 11) {
+                res = raw.substr(0, 3) + '-' + raw.substr(3, 3) + '-' + raw.substr(6);
+            } else {
+                res = raw.substr(0, 3) + '-' + raw.substr(3, 4) + '-' + raw.substr(7, 4);
+            }
+            e.target.value = res;
+        });
     </script>
 </body>
+
 </html>

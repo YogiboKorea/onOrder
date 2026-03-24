@@ -380,7 +380,10 @@ app.get('/api/popup/data', async (req, res) => {
         const popupCol = dbOnline.collection('popup_sales');
         const invCol = dbOnline.collection('popup_inventory');
 
-        const sales = await popupCol.find({}).sort({ timestamp: -1 }).toArray();
+        const start = req.query.start;
+        const end = req.query.end;
+
+        const allSales = await popupCol.find({}).sort({ timestamp: -1 }).toArray();
 
         // MongoDB에서 설정된 초기 재고 가져오기
         let inventoryData = await invCol.find({}).toArray();
@@ -403,11 +406,38 @@ app.get('/api/popup/data', async (req, res) => {
             inventory[item._id] = { total: item.total, sold: 0 };
         });
 
+        // 실시간 재고는 기간 필터링과 무관하게 전체 데이터로 계산해야 함
+        allSales.forEach(sale => {
+            const invKey = `${sale.product}_${sale.color}`;
+
+            if (sale.status === 'SALE') {
+                if (inventory[invKey]) {
+                    inventory[invKey].sold += sale.qty;
+                }
+            } else if (sale.status === 'CANCEL') {
+                if (inventory[invKey]) {
+                    inventory[invKey].sold -= sale.qty;
+                }
+            }
+        });
+
+        // 대시보드 표시용 데이터 필터링
+        let sales = allSales;
+        if (start || end) {
+            sales = allSales.filter(s => {
+                const dt = s.timestamp;
+                if (start && dt < start + 'T00:00:00.000Z') return false;
+                if (end && dt > end + 'T23:59:59.999Z') return false;
+                return true;
+            });
+        }
+
         const dailyData = {};
         let totalRevenue = 0;
 
         sales.forEach(sale => {
-            const date = sale.date;
+            const date = new Date(sale.timestamp).toISOString().split('T')[0];
+
             if (!dailyData[date]) {
                 dailyData[date] = { qty: 0, revenue: 0, cancelQty: 0, cancelRevenue: 0 };
             }
@@ -416,20 +446,10 @@ app.get('/api/popup/data', async (req, res) => {
                 dailyData[date].qty += sale.qty;
                 dailyData[date].revenue += sale.totalAmount;
                 totalRevenue += sale.totalAmount;
-
-                const invKey = `${sale.product}_${sale.color}`;
-                if (inventory[invKey]) {
-                    inventory[invKey].sold += sale.qty;
-                }
             } else if (sale.status === 'CANCEL') {
                 dailyData[date].cancelQty += sale.qty;
                 dailyData[date].cancelRevenue += sale.totalAmount;
                 totalRevenue -= sale.totalAmount;
-
-                const invKey = `${sale.product}_${sale.color}`;
-                if (inventory[invKey]) {
-                    inventory[invKey].sold -= sale.qty;
-                }
             }
         });
 
@@ -444,7 +464,25 @@ app.get('/api/popup/excel', async (req, res) => {
     try {
         const dbOnline = mongoClient.db(ONLINE_DB_NAME);
         const popupCol = dbOnline.collection('popup_sales');
-        const sales = await popupCol.find({}).sort({ timestamp: -1 }).toArray();
+        
+        const start = req.query.start;
+        const end = req.query.end;
+
+        const allSales = await popupCol.find({}).sort({ timestamp: -1 }).toArray();
+        
+        let sales = allSales;
+        if (start || end) {
+            sales = allSales.filter(s => {
+                const dt = s.timestamp;
+                if (start && dt < start + 'T00:00:00.000Z') return false;
+                if (end && dt > end + 'T23:59:59.999Z') return false;
+                return true;
+            });
+        }
+
+        if (sales.length === 0) {
+            return res.status(404).send('다운로드할 데이터가 없습니다.');
+        }
 
         const dataForExcel = sales.map((sale, index) => ({
             'No': index + 1,

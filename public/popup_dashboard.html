@@ -1,48 +1,310 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Yogibo 주문 현황판</title>
-    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
     <style>
         :root {
-            --primary: #4A90E2; --danger: #EF4444; --success: #10B981;
-            --bg-color: #F8FAFC; --card-bg: #FFFFFF;
-            --text-main: #1E293B; --text-muted: #64748B;
+            --primary: #5A67D8;
+            --primary-hover: #434190;
+            --bg-color: #F7FAFC;
+            --card-bg: #FFFFFF;
+            --text-main: #2D3748;
+            --text-muted: #718096;
+            --danger: #E53E3E;
+            --success: #38A169;
             --border: #E2E8F0;
+            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+            --radius: 20px;
         }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Pretendard', sans-serif; }
-        body { background: var(--bg-color); color: var(--text-main); padding: 2rem; }
-        .container { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
-        @media (max-width: 900px) { .container { grid-template-columns: 1fr; } body { padding: 1rem; } }
-        header { max-width: 1200px; margin: 0 auto 2rem; display: flex; justify-content: space-between; align-items: center; background: var(--card-bg); padding: 1.5rem; border-radius: 12px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
-        .card { background: var(--card-bg); padding: 1.5rem; border-radius: 12px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); margin-bottom: 2rem; }
-        h2 { border-bottom: 2px solid var(--border); padding-bottom: 0.5rem; margin-bottom: 1.5rem; }
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem; }
-        .stat-box { background: var(--bg-color); padding: 1rem; border-radius: 8px; text-align: center; border: 1px solid var(--border); }
-        .stat-box .label { font-size: 0.9rem; color: var(--text-muted); }
-        .stat-box .value { font-size: 1.5rem; font-weight: 700; color: var(--primary); }
-        .inv-list { list-style: none; }
-        .inv-item { display: flex; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid var(--border); font-size: 0.95rem; }
-        .badge { background: var(--primary); color: white; padding: 0.2rem 0.6rem; border-radius: 99px; font-size: 0.8rem; }
-        .badge.low { background: var(--danger); }
-        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-        th, td { padding: 0.75rem; border-bottom: 1px solid var(--border); text-align: left; }
-        th { background: var(--bg-color); color: var(--text-muted); }
-        .status-sale { color: var(--primary); font-weight: 600; }
-        .status-cancel { color: var(--danger); font-weight: 600; text-decoration: line-through; }
-        button { background: var(--success); color: white; padding: 0.6rem 1.2rem; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; }
-        .cancel-btn { background: transparent; color: var(--danger); border: 1px solid var(--danger); padding: 0.2rem 0.5rem; font-size: 0.75rem; border-radius: 4px; }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Pretendard', -apple-system, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f6f8fd 0%, #f1f5f9 100%);
+            color: var(--text-main);
+            line-height: 1.6;
+            padding: 1.5rem 1rem;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 900px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+
+            body {
+                padding: 1rem 0.5rem;
+            }
+        }
+
+        header {
+            max-width: 1000px;
+            margin: 0 auto 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 1.25rem 1.5rem;
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255, 255, 255, 0.7);
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        h1 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #1A202C;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .btn-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.85rem;
+            padding: 0.4rem 0.8rem;
+            border-radius: 99px;
+            transition: 0.2s;
+            background: #EDF2F7;
+            display: inline-block;
+        }
+
+        .btn-link:hover {
+            background: #E2E8F0;
+            color: #2D3748;
+        }
+
+        button.export-btn {
+            background: linear-gradient(135deg, #38A169 0%, #276749 100%);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.25rem;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 6px rgba(56, 161, 105, 0.25);
+            white-space: nowrap;
+        }
+
+        button.export-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(56, 161, 105, 0.3);
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255, 255, 255, 0.7);
+            display: flex;
+            flex-direction: column;
+        }
+
+        h2 {
+            font-size: 1.2rem;
+            margin-bottom: 1.5rem;
+            color: #1A202C;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        h2::before {
+            content: "";
+            display: block;
+            width: 4px;
+            height: 16px;
+            background: var(--primary);
+            border-radius: 4px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-box {
+            background: linear-gradient(145deg, #ffffff, #f8fafc);
+            padding: 1.25rem;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+        }
+
+        .stat-box .label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-box .value {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: var(--primary);
+            letter-spacing: -0.5px;
+        }
+
+        .inv-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .inv-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: #F8FAFC;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        .badge {
+            background: #EBF4FF;
+            color: var(--primary);
+            padding: 0.3rem 0.8rem;
+            border-radius: 99px;
+            font-weight: 700;
+            font-size: 0.85rem;
+        }
+
+        .badge.low {
+            background: #FEE2E2;
+            color: var(--danger);
+            box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2);
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: white;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+            min-width: 500px;
+        }
+
+        th,
+        td {
+            padding: 1rem;
+            text-align: left;
+        }
+
+        th {
+            background: #F8FAFC;
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        td {
+            border-bottom: 1px solid var(--border);
+            vertical-align: middle;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .status-sale {
+            color: var(--success);
+            font-weight: 700;
+            background: #D1FAE5;
+            padding: 0.35rem 0.6rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            display: inline-block;
+        }
+
+        .status-cancel {
+            color: var(--danger);
+            font-weight: 700;
+            background: #FEE2E2;
+            padding: 0.35rem 0.6rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            display: inline-block;
+            text-decoration: line-through;
+        }
+
+        .cancel-btn {
+            background: white;
+            color: var(--danger);
+            border: 1px solid #FECACA;
+            padding: 0.4rem 0.8rem;
+            font-size: 0.8rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .cancel-btn:hover {
+            background: #FEE2E2;
+            border-color: var(--danger);
+            transform: translateY(-1px);
+        }
     </style>
 </head>
+
 <body>
     <header>
         <div>
             <h1>Yogibo 현황판</h1>
-            <a href="/popup.html" style="color:var(--text-muted); text-decoration:none; font-size:0.9rem;">&larr; 결제 페이지로 돌아가기</a>
+            <a href="/popup.html" class="btn-link">&larr; 결제 페이지로 돌아가기</a>
         </div>
-        <button onclick="location.href='/api/popup/excel'">엑셀 데이터 다운로드</button>
+        <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+            <input type="date" id="start-date" style="padding: 0.65rem 1rem; width: auto; font-size: 0.85rem; border: 1px solid var(--border); border-radius: 10px;">
+            <span style="color: var(--text-muted); font-weight: 600;">~</span>
+            <input type="date" id="end-date" style="padding: 0.65rem 1rem; width: auto; font-size: 0.85rem; border: 1px solid var(--border); border-radius: 10px;">
+            <button class="export-btn" style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%); box-shadow: 0 4px 6px rgba(90, 103, 216, 0.25); padding: 0.65rem 1rem;" onclick="fetchDashboard()">조회</button>
+            <button class="export-btn" onclick="downloadExcel()">엑셀 다운로드</button>
+        </div>
     </header>
 
     <div class="container">
@@ -55,8 +317,8 @@
                         <div class="value" id="dashboard-revenue">0</div>
                     </div>
                     <div class="stat-box">
-                        <div class="label">오늘 판매수량</div>
-                        <div class="value" id="dashboard-today-qty">0</div>
+                        <div class="label" id="qty-label">기간내 판매수량</div>
+                        <div class="value" id="dashboard-qty">0</div>
                     </div>
                 </div>
 
@@ -64,36 +326,63 @@
                 <ul class="inv-list" id="inventory-list"></ul>
             </div>
         </div>
-        
-        <div class="card" style="overflow-x: auto;">
+
+        <div class="card">
             <h2>최근 판매 내역</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>상태</th>
-                        <th>결제일시</th>
-                        <th>상세내용</th>
-                        <th>총액</th>
-                        <th>취소</th>
-                    </tr>
-                </thead>
-                <tbody id="history-body"></tbody>
-            </table>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>상태</th>
+                            <th>결제일시</th>
+                            <th>상세내용</th>
+                            <th>총액</th>
+                            <th>취소</th>
+                        </tr>
+                    </thead>
+                    <tbody id="history-body"></tbody>
+                </table>
+            </div>
         </div>
     </div>
 
     <script>
         const formatMem = num => num.toLocaleString('ko-KR');
 
+        function downloadExcel() {
+            const start = document.getElementById('start-date').value;
+            const end = document.getElementById('end-date').value;
+            const query = new URLSearchParams();
+            if (start) query.append('start', start);
+            if (end) query.append('end', end);
+            location.href = '/api/popup/excel?' + query.toString();
+        }
+
         async function fetchDashboard() {
-            const res = await fetch('/api/popup/data');
+            const start = document.getElementById('start-date').value;
+            const end = document.getElementById('end-date').value;
+            const query = new URLSearchParams();
+            if (start) query.append('start', start);
+            if (end) query.append('end', end);
+
+            const res = await fetch('/api/popup/data?' + query.toString());
             const data = await res.json();
             
             if (data.success) {
                 document.getElementById('dashboard-revenue').innerText = formatMem(data.totalRevenue) + '원';
-                const todayKey = new Date().getFullYear() + '-' + String(new Date().getMonth()+1).padStart(2, '0') + '-' + String(new Date().getDate()).padStart(2, '0');
-                const tData = data.dailyData[todayKey] || {qty:0};
-                document.getElementById('dashboard-today-qty').innerText = formatMem(tData.qty) + '개';
+                
+                let periodQty = 0;
+                data.sales.forEach(s => {
+                    if (s.status === 'SALE') periodQty += s.qty;
+                    else if (s.status === 'CANCEL') periodQty -= s.qty;
+                });
+                document.getElementById('dashboard-qty').innerText = formatMem(periodQty) + '개';
+                
+                if (start || end) {
+                    document.getElementById('qty-label').innerText = '선택 기간 판매수량';
+                } else {
+                    document.getElementById('qty-label').innerText = '전체 누적 판매수량';
+                }
 
                 const list = document.getElementById('inventory-list');
                 list.innerHTML = '';
@@ -119,7 +408,7 @@
                             <td>${time}</td>
                             <td>
                                 <b>${s.product}</b> (${s.color}) - ${s.qty}개<br>
-                                <span style="font-size:0.8rem; color:#666;">${s.customerName||'이름없음'} / ${s.customerPhone||'연락처없음'}</span>
+                                <span style="font-size:0.8rem; color:#666;">${s.customerName || '이름없음'} / ${s.customerPhone || '연락처없음'}</span>
                             </td>
                             <td>${formatMem(s.totalAmount)}원</td>
                             <td>${!isC ? `<button class="cancel-btn" onclick="cancelOrder('${s._id}')">취소</button>` : ''}</td>
@@ -130,14 +419,14 @@
         }
 
         async function cancelOrder(id) {
-            if(!confirm('해당 결제건을 취소 처리할까요? 재고가 원복됩니다.')) return;
+            if (!confirm('해당 결제건을 취소 처리할까요? 재고가 원복됩니다.')) return;
             const res = await fetch('/api/popup/cancel', {
                 method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({id})
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id })
             });
             const result = await res.json();
-            if(result.success) fetchDashboard();
+            if (result.success) fetchDashboard();
             else alert(result.message);
         }
 
@@ -145,4 +434,5 @@
         setInterval(fetchDashboard, 30000);
     </script>
 </body>
+
 </html>
