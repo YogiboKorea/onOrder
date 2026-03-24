@@ -378,18 +378,30 @@ app.get('/api/popup/data', async (req, res) => {
     try {
         const dbOnline = mongoClient.db(ONLINE_DB_NAME);
         const popupCol = dbOnline.collection('popup_sales');
+        const invCol = dbOnline.collection('popup_inventory');
 
         const sales = await popupCol.find({}).sort({ timestamp: -1 }).toArray();
 
-        // 초기 재고 설정
-        const inventory = {
-            '마인드 필로우_화이트 미스트': { total: 50, sold: 0 },
-            '마인드 필로우_블루문': { total: 30, sold: 0 },
-            '마인드 필로우_핑크샌드': { total: 50, sold: 0 },
-            '마인드 바디필로우_화이트 미스트': { total: 20, sold: 0 },
-            '마인드 바디필로우_블루문': { total: 20, sold: 0 },
-            '마인드 바디필로우_핑크샌드': { total: 20, sold: 0 },
-        };
+        // MongoDB에서 설정된 초기 재고 가져오기
+        let inventoryData = await invCol.find({}).toArray();
+        if (inventoryData.length === 0) {
+            // 초기 세팅이 없으면 생성
+            const initialSetup = [
+                { _id: '마인드 필로우_화이트 미스트', total: 50 },
+                { _id: '마인드 필로우_블루문', total: 30 },
+                { _id: '마인드 필로우_핑크샌드', total: 50 },
+                { _id: '마인드 바디필로우_화이트 미스트', total: 20 },
+                { _id: '마인드 바디필로우_블루문', total: 20 },
+                { _id: '마인드 바디필로우_핑크샌드', total: 20 }
+            ];
+            await invCol.insertMany(initialSetup);
+            inventoryData = initialSetup;
+        }
+
+        const inventory = {};
+        inventoryData.forEach(item => {
+            inventory[item._id] = { total: item.total, sold: 0 };
+        });
 
         const dailyData = {};
         let totalRevenue = 0;
