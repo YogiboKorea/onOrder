@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yogibo 팝업스토어 결제</title>
+    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4A90E2;
+            --primary-hover: #357ABD;
+            --bg-color: #F8FAFC;
+            --card-bg: #FFFFFF;
+            --text-main: #1E293B;
+            --text-muted: #64748B;
+            --danger: #EF4444;
+            --success: #10B981;
+            --border: #E2E8F0;
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --radius: 12px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Pretendard', sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-main); line-height: 1.5; padding: 2rem; }
+        h1, h2 { color: var(--text-main); }
+        .container { max-width: 800px; margin: 0 auto; display: grid; gap: 1.5rem; }
+        .card { background: var(--card-bg); border-radius: var(--radius); padding: 2rem; box-shadow: var(--shadow); }
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+        .btn-link { color: var(--primary); text-decoration: none; font-weight: 600; }
+        .form-group { margin-bottom: 1.25rem; }
+        label { display: block; margin-bottom: 0.5rem; font-weight: 500; font-size: 0.95rem; }
+        select, input { width: 100%; padding: 0.75rem 1rem; border: 1px solid var(--border); border-radius: 8px; font-size: 1rem; background-color: #F8FAFC; }
+        select:focus, input:focus { border-color: var(--primary); outline: none; background-color: white; }
+        button { background-color: var(--primary); color: white; border: none; padding: 0.875rem 1.5rem; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; width: 100%; transition: 0.2s; }
+        button:hover { background-color: var(--primary-hover); }
+        button.add-btn { background-color: #F1F5F9; color: var(--primary); border: 1px solid var(--primary); margin-top: 1rem; }
+        button.add-btn:hover { background-color: #E2E8F0; }
+        .cart-list { margin-top: 1.5rem; border-top: 1px solid var(--border); padding-top: 1.5rem; }
+        .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; background: #F8FAFC; border-radius: 6px; border: 1px solid var(--border); margin-bottom: 0.5rem; }
+        .cart-item-info { font-size: 0.9rem; }
+        .cart-item-info b { color: var(--primary); }
+        .cart-remove { background: none; border: none; color: var(--danger); font-size: 0.8rem; cursor: pointer; width: auto; padding: 0.2rem 0.5rem; }
+        .cart-remove:hover { text-decoration: underline; background: none; }
+        .total-price { text-align: right; font-size: 1.25rem; font-weight: 700; color: var(--primary); margin-top: 1rem; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Yogibo 현장 결제 시스템</h1>
+            <a href="/popup_dashboard.html" class="btn-link">현황판 보러가기 &rarr;</a>
+        </header>
+
+        <div class="card">
+            <h2>장바구니 담기</h2>
+            <div class="form-group">
+                <label>상품 선택</label>
+                <select id="product-input" onchange="updateColorOptions()">
+                    <option value="마인드 필로우">샐리필 마인드 필로우 (69,000원)</option>
+                    <option value="마인드 바디필로우">샐리필 마인드 바디필로우 (69,000원)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>색상 선택</label>
+                <select id="color-input">
+                    <option value="화이트 미스트">화이트 미스트</option>
+                    <option value="블루문">블루문</option>
+                    <option value="핑크샌드">핑크샌드</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>수량 (1개 = 69,000원)</label>
+                <input type="number" id="qty-input" min="1" value="1">
+            </div>
+            <button class="add-btn" onclick="addToCart()">+ 장바구니에 추가</button>
+
+            <div class="cart-list" id="cart-list">
+                <!-- items go here -->
+            </div>
+            <div class="total-price" id="total-price">총 결제금액: 0원</div>
+        </div>
+
+        <div class="card">
+            <h2>주문자 정보 (선택)</h2>
+            <div class="form-group">
+                <label>고객성함</label>
+                <input type="text" id="c-name" placeholder="홍길동">
+            </div>
+            <div class="form-group">
+                <label>연락처</label>
+                <input type="tel" id="c-phone" placeholder="010-1234-5678">
+            </div>
+            <div class="form-group">
+                <label>주소</label>
+                <input type="text" id="c-address" placeholder="서울시 강남구...">
+            </div>
+            <div class="form-group">
+                <label>메모/특이사항</label>
+                <input type="text" id="c-memo" placeholder="요청사항 입력">
+            </div>
+            
+            <button onclick="submitOrder()" style="margin-top: 1rem; padding: 1rem; font-size: 1.1rem;">주문 완료하기</button>
+        </div>
+    </div>
+
+    <script>
+        let cart = [];
+        const PRICE = 69000;
+        let serverInventory = {};
+
+        async function fetchInventory() {
+            try {
+                const res = await fetch('/api/popup/data');
+                const data = await res.json();
+                if (data.success) {
+                    serverInventory = data.inventory;
+                    updateColorOptions();
+                }
+            } catch (err) {
+                console.error('인벤토리 로딩 실패', err);
+            }
+        }
+
+        function updateColorOptions() {
+            const product = document.getElementById('product-input').value;
+            const colorSelect = document.getElementById('color-input');
+            const currentColor = colorSelect.value;
+            
+            colorSelect.innerHTML = '';
+            
+            const colors = ['화이트 미스트', '블루문', '핑크샌드'];
+            
+            colors.forEach(c => {
+                const key = `${product}_${c}`;
+                let remainText = '';
+                let disabled = '';
+                
+                if (serverInventory[key]) {
+                    const info = serverInventory[key];
+                    const remain = info.total - info.sold;
+                    
+                    // Deduct items already in the cart
+                    const inCart = cart.filter(item => item.product === product && item.color === c).reduce((sum, item) => sum + parseInt(item.qty), 0);
+                    const actualRemain = remain - inCart;
+                    
+                    remainText = ` (${actualRemain}ea)`;
+                    if (actualRemain <= 0) disabled = 'disabled';
+                }
+                
+                colorSelect.innerHTML += `<option value="${c}" ${disabled}>${c}${remainText}</option>`;
+            });
+            
+            if (currentColor && colorSelect.querySelector(`option[value="${currentColor}"]:not([disabled])`)) {
+                colorSelect.value = currentColor;
+            }
+        }
+
+        function renderCart() {
+            const list = document.getElementById('cart-list');
+            list.innerHTML = '';
+            let total = 0;
+            
+            if(cart.length === 0) {
+                list.innerHTML = '<div style="text-align:center; color:#94a3b8; font-size:0.9rem;">장바구니가 비어있습니다.</div>';
+            }
+
+            cart.forEach((item, index) => {
+                const subTotal = item.qty * PRICE;
+                total += subTotal;
+                list.innerHTML += `
+                    <div class="cart-item">
+                        <div class="cart-item-info">
+                            <b>${item.product}</b> (${item.color}) - ${item.qty}개 <br>
+                            <span style="color:#64748b; font-size:0.8rem;">${subTotal.toLocaleString()}원</span>
+                        </div>
+                        <button class="cart-remove" onclick="removeFromCart(${index})">삭제</button>
+                    </div>
+                `;
+            });
+            document.getElementById('total-price').innerText = `총 결제금액: ${total.toLocaleString()}원`;
+            updateColorOptions(); // Refresh dropdown when cart changes
+        }
+
+        function addToCart() {
+            const product = document.getElementById('product-input').value;
+            const color = document.getElementById('color-input').value;
+            const qty = parseInt(document.getElementById('qty-input').value) || 1;
+            
+            cart.push({ product, color, qty });
+            renderCart();
+            // reset qty
+            document.getElementById('qty-input').value = 1;
+        }
+
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            renderCart();
+        }
+
+        async function submitOrder() {
+            if (cart.length === 0) return alert('장바구니에 상품을 담아주세요.');
+            if (!confirm('이대로 주문을 생성하시겠습니까?')) return;
+
+            const payload = {
+                items: cart,
+                customerName: document.getElementById('c-name').value,
+                customerPhone: document.getElementById('c-phone').value,
+                customerAddress: document.getElementById('c-address').value,
+                memo: document.getElementById('c-memo').value,
+            };
+
+            try {
+                const res = await fetch('/api/popup/sales', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const result = await res.json();
+                
+                if (result.success) {
+                    alert('성공적으로 등록되었습니다!');
+                    cart = [];
+                    renderCart();
+                    document.getElementById('c-name').value = '';
+                    document.getElementById('c-phone').value = '';
+                    document.getElementById('c-address').value = '';
+                    document.getElementById('c-memo').value = '';
+                    fetchInventory(); // Reload inventory from server after purchase
+                } else {
+                    alert('오류 발생: ' + result.message);
+                }
+            } catch (err) {
+                alert('서버와 통신할 수 없습니다.');
+            }
+        }
+
+        // Initialize display
+        renderCart();
+        fetchInventory();
+        // optionally refresh stock periodically
+        setInterval(fetchInventory, 30000);
+    </script>
+</body>
+</html>
