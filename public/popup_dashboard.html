@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Yogibo 주문 현황판</title>
+    <title>샐리필주문 현황판</title>
     <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700&display=swap"
         rel="stylesheet">
     <style>
@@ -295,14 +295,18 @@
 <body>
     <header>
         <div>
-            <h1>Yogibo 현황판</h1>
+            <h1>샐리필 현황판</h1>
             <a href="/popup.html" class="btn-link">&larr; 결제 페이지로 돌아가기</a>
         </div>
         <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
-            <input type="date" id="start-date" style="padding: 0.65rem 1rem; width: auto; font-size: 0.85rem; border: 1px solid var(--border); border-radius: 10px;">
+            <input type="date" id="start-date"
+                style="padding: 0.65rem 1rem; width: auto; font-size: 0.85rem; border: 1px solid var(--border); border-radius: 10px;">
             <span style="color: var(--text-muted); font-weight: 600;">~</span>
-            <input type="date" id="end-date" style="padding: 0.65rem 1rem; width: auto; font-size: 0.85rem; border: 1px solid var(--border); border-radius: 10px;">
-            <button class="export-btn" style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%); box-shadow: 0 4px 6px rgba(90, 103, 216, 0.25); padding: 0.65rem 1rem;" onclick="fetchDashboard()">조회</button>
+            <input type="date" id="end-date"
+                style="padding: 0.65rem 1rem; width: auto; font-size: 0.85rem; border: 1px solid var(--border); border-radius: 10px;">
+            <button class="export-btn"
+                style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%); box-shadow: 0 4px 6px rgba(90, 103, 216, 0.25); padding: 0.65rem 1rem;"
+                onclick="fetchDashboard()">조회</button>
             <button class="export-btn" onclick="downloadExcel()">엑셀 다운로드</button>
         </div>
     </header>
@@ -367,17 +371,17 @@
 
             const res = await fetch('/api/popup/data?' + query.toString());
             const data = await res.json();
-            
+
             if (data.success) {
                 document.getElementById('dashboard-revenue').innerText = formatMem(data.totalRevenue) + '원';
-                
+
                 let periodQty = 0;
                 data.sales.forEach(s => {
                     if (s.status === 'SALE') periodQty += s.qty;
                     else if (s.status === 'CANCEL') periodQty -= s.qty;
                 });
                 document.getElementById('dashboard-qty').innerText = formatMem(periodQty) + '개';
-                
+
                 if (start || end) {
                     document.getElementById('qty-label').innerText = '선택 기간 판매수량';
                 } else {
