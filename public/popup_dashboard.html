@@ -46,11 +46,11 @@
         }
 
         @media (max-width: 900px) {
-            .container { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1.5fr; gap: 2rem; }
+            .container { max-width: 1400px; margin: 0 auto; display: grid; grid-template-columns: 380px 1fr; gap: 2rem; }
         }
         @media (max-width: 1000px) { .container { grid-template-columns: 1fr; } body { padding: 1rem 0.5rem; } }
         
-        header { max-width: 1200px; margin: 0 auto 1.5rem; display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.8); backdrop-filter: blur(10px); padding: 1.25rem 1.5rem; border-radius: 16px; box-shadow: var(--shadow); border: 1px solid rgba(255,255,255,0.7); flex-wrap: wrap; gap: 1rem; }
+        header { max-width: 1400px; margin: 0 auto 1.5rem; display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.8); backdrop-filter: blur(10px); padding: 1.25rem 1.5rem; border-radius: 16px; box-shadow: var(--shadow); border: 1px solid rgba(255,255,255,0.7); flex-wrap: wrap; gap: 1rem; }
         h1 { font-size: 1.4rem; font-weight: 700; color: #1A202C; display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem; white-space: nowrap; }
         .btn-link { color: var(--text-muted); text-decoration: none; font-weight: 600; font-size: 0.85rem; padding: 0.4rem 0.8rem; border-radius: 99px; transition: 0.2s; background: #EDF2F7; display: inline-block; white-space: nowrap; }
         .btn-link:hover { background: #E2E8F0; color: #2D3748; }
@@ -104,10 +104,10 @@
             border-radius: 4px;
         }
 
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 2rem; }
-        .stat-box { background: linear-gradient(145deg, #ffffff, #f8fafc); padding: 1.25rem; border-radius: 16px; border: 1px solid var(--border); box-shadow: 0 4px 6px rgba(0,0,0,0.02); display: flex; flex-direction: column; justify-content: center; }
-        .stat-box .label { font-size: 0.85rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem; word-break: keep-all; }
-        .stat-box .value { font-size: 1.6rem; font-weight: 800; color: var(--primary); letter-spacing: -0.5px; white-space: nowrap; }
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 2rem; }
+        .stat-box { background: linear-gradient(145deg, #ffffff, #f8fafc); padding: 1.25rem 1rem; border-radius: 16px; border: 1px solid var(--border); box-shadow: 0 4px 6px rgba(0,0,0,0.02); display: flex; flex-direction: column; justify-content: center; }
+        .stat-box .label { font-size: 0.8rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0px; margin-bottom: 0.5rem; word-break: keep-all; }
+        .stat-box .value { font-size: 1.5rem; font-weight: 800; color: var(--primary); letter-spacing: -0.5px; white-space: nowrap; }
         
 
         .inv-list {
@@ -144,12 +144,12 @@
             box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2);
         }
 
-        .table-wrapper { overflow-x: auto; border-radius: 12px; border: 1px solid var(--border); background: white; white-space: nowrap; }
-        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; min-width: 600px; }
+        .table-wrapper { overflow-x: auto; border-radius: 12px; border: 1px solid var(--border); background: white; white-space: nowrap; width: 100%; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.95rem; min-width: 700px; }
         th, td { padding: 1rem; text-align: left; }
         th { background: #F8FAFC; color: var(--text-muted); font-weight: 600; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); }
         td { border-bottom: 1px solid var(--border); vertical-align: middle; }
-        td:nth-child(3) { white-space: normal; min-width: 200px; line-height: 1.4; } /* 상세내용 줄바꿈 허용 */
+        td:nth-child(3) { white-space: normal; line-height: 1.5; } 
         tr:last-child td { border-bottom: none; }
         
         .status-sale { color: var(--success); font-weight: 700; background: #D1FAE5; padding: 0.35rem 0.6rem; border-radius: 6px; font-size: 0.75rem; display: inline-block; white-space: nowrap; }
