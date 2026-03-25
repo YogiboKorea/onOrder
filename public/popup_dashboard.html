@@ -314,7 +314,6 @@
                 let periodQty = 0;
                 data.sales.forEach(s => {
                     if (s.status === 'SALE') periodQty += s.qty;
-                    else if (s.status === 'CANCEL') periodQty -= s.qty;
                 });
                 document.getElementById('dashboard-qty').innerText = formatMem(periodQty) + '개';
 

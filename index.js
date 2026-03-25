@@ -414,10 +414,6 @@ app.get('/api/popup/data', async (req, res) => {
                 if (inventory[invKey]) {
                     inventory[invKey].sold += sale.qty;
                 }
-            } else if (sale.status === 'CANCEL') {
-                if (inventory[invKey]) {
-                    inventory[invKey].sold -= sale.qty;
-                }
             }
         });
 
@@ -449,7 +445,6 @@ app.get('/api/popup/data', async (req, res) => {
             } else if (sale.status === 'CANCEL') {
                 dailyData[date].cancelQty += sale.qty;
                 dailyData[date].cancelRevenue += sale.totalAmount;
-                totalRevenue -= sale.totalAmount;
             }
         });
 
