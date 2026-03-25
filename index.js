@@ -25,6 +25,9 @@ let mongoClient;
 
 const EXCEL_PATH = path.join(__dirname, 'file', 'onOrderData.xlsx');
 
+// ==========================================
+// 1. DB 연결 및 엑셀 파싱 유틸리티 함수
+// ==========================================
 async function connectDB() {
     try {
         client = new MongoClient(MONGO_URI);
@@ -152,6 +155,9 @@ function parseProduct(rawString, group1, memo = '', storeName = '') {
     return { name: namePart, color: colorPart, category };
 }
 
+// ==========================================
+// 2. 엑셀 -> DB 동기화 핵심 로직
+// ==========================================
 async function syncExcelToDB() {
     if (!fs.existsSync(EXCEL_PATH)) {
         console.log('❌ [오류] 엑셀 파일이 경로에 없습니다:', EXCEL_PATH);
@@ -187,7 +193,7 @@ async function syncExcelToDB() {
         if (!keys.orderNo || !keys.date) return 0;
 
         let lastOrderNo = '', lastDate = null, lastStore = '';
-        let targetDates = new Set(); // ★ 수정됨: 월(Month) 단위가 아니라 일(Date) 단위로 기록
+        let targetDates = new Set(); 
 
         const parsedData = rawData.map((row, idx) => {
             const currentRowIndex = headerIndex + 1 + idx;
@@ -208,7 +214,6 @@ async function syncExcelToDB() {
             const lowerPName = pName.toLowerCase();
             const lowerMemo = memoText.toLowerCase();
 
-            // 배송비 및 불필요 항목 필터링
             const isExcluded = !isNegative && (
                 lowerPName.includes('쇼핑백') ||
                 lowerPName.includes('shopping bag') ||
@@ -224,7 +229,6 @@ async function syncExcelToDB() {
             const { name, color, category } = parseProduct(row[keys.product], row[keys.group1], memoText, cleanStore);
             const dInfo = calculateDateInfo(lastDate);
 
-            // ★ 수정됨: 엑셀 파일에 존재하는 날짜들을 모두 수집
             if (dInfo.fullDate !== '-' && dInfo.fullDate !== '날짜오류') {
                 targetDates.add(dInfo.fullDate);
             }
@@ -280,7 +284,6 @@ async function syncExcelToDB() {
         const ordersCol = dbOnline.collection('orders');
 
         if (finalOrders.length > 0) {
-            // ★ 핵심 로직: 엑셀에 포함된 '특정 일자'들만 DB에서 삭제 후 덮어쓰기
             const dateArray = Array.from(targetDates);
             if (dateArray.length > 0) {
                 console.log(`🗑 DB에서 삭제 후 덮어쓰기 진행하는 일자: ${dateArray.join(', ')}`);
@@ -305,13 +308,70 @@ async function syncExcelToDB() {
 }
 
 
+// ==========================================
+// 3. 온라인 대시보드 데이터 연동 API (추가/수정됨)
+// ==========================================
 
-//기능 추가하하기
-// 팝업 스토어 관련 API
+// 3-1. 월별 목록 조회 API
+app.get('/api/online/months', async (req, res) => {
+    try {
+        const dbOnline = mongoClient.db(ONLINE_DB_NAME);
+        const months = await dbOnline.collection('orders').distinct('month');
+        res.status(200).json({ success: true, months: months });
+    } catch (err) {
+        console.error('월 목록 조회 에러:', err);
+        res.status(500).json({ success: false, message: '서버 에러' });
+    }
+});
+
+// 3-2. 주문 데이터 조회 API (월별 & 판매처별 필터링)
+app.get('/api/online/orders', async (req, res) => {
+    try {
+        const { month, store } = req.query;
+        const dbOnline = mongoClient.db(ONLINE_DB_NAME);
+        
+        // 쿼리 파라미터 기반 검색 조건 생성
+        const query = {};
+        if (month) query.month = month;
+        if (store && store !== 'all') query.store = store;
+
+        const orders = await dbOnline.collection('orders').find(query).toArray();
+        res.status(200).json({ success: true, orders: orders });
+    } catch (err) {
+        console.error('주문 데이터 조회 에러:', err);
+        res.status(500).json({ success: false, message: '서버 에러' });
+    }
+});
+
+// 3-3. 이벤트 캘린더 데이터 조회 API
+app.get('/api/online/events', async (req, res) => {
+    try {
+        const dbOnline = mongoClient.db(ONLINE_DB_NAME);
+        const events = await dbOnline.collection('events').find({}).toArray(); 
+        res.status(200).json({ success: true, events: events });
+    } catch (err) {
+        res.status(500).json({ success: false, message: '서버 에러' });
+    }
+});
+
+// 3-4. 마지막 업데이트 시간 조회 API
+app.get('/api/online/system/last-update', async (req, res) => {
+    try {
+        const dbOnline = mongoClient.db(ONLINE_DB_NAME);
+        const meta = await dbOnline.collection('system_metadata').findOne({ key: 'last_update_time' });
+        res.status(200).json({ success: true, timestamp: meta ? meta.timestamp : null });
+    } catch (err) {
+        res.status(500).json({ success: false, message: '서버 에러' });
+    }
+});
+
+
+// ==========================================
+// 4. 팝업 스토어 관련 API (기존 유지)
+// ==========================================
 app.post('/api/popup/sales', async (req, res) => {
     try {
         const { items, customerName, customerPhone, customerAddress, memo } = req.body;
-        // items is an array of { product, color, qty }
         const dbOnline = mongoClient.db(ONLINE_DB_NAME);
         const popupCol = dbOnline.collection('popup_sales');
 
@@ -388,10 +448,8 @@ app.get('/api/popup/data', async (req, res) => {
 
         const allSales = await popupCol.find({}).sort({ timestamp: -1 }).toArray();
 
-        // MongoDB에서 설정된 초기 재고 가져오기
         let inventoryData = await invCol.find({}).toArray();
         if (inventoryData.length === 0) {
-            // 초기 세팅이 없으면 생성
             const initialSetup = [
                 { _id: '마인드 필로우_화이트 미스트', total: 50 },
                 { _id: '마인드 필로우_블루문', total: 30 },
@@ -409,10 +467,8 @@ app.get('/api/popup/data', async (req, res) => {
             inventory[item._id] = { total: item.total, sold: 0 };
         });
 
-        // 실시간 재고는 기간 필터링과 무관하게 전체 데이터로 계산해야 함
         allSales.forEach(sale => {
             const invKey = `${sale.product}_${sale.color}`;
-
             if (sale.status === 'SALE') {
                 if (inventory[invKey]) {
                     inventory[invKey].sold += sale.qty;
@@ -420,7 +476,6 @@ app.get('/api/popup/data', async (req, res) => {
             }
         });
 
-        // 대시보드 표시용 데이터 필터링
         let sales = allSales;
         if (start || end) {
             sales = allSales.filter(s => {
@@ -457,8 +512,6 @@ app.get('/api/popup/data', async (req, res) => {
         res.status(500).json({ success: false, message: '서버 에러 발생' });
     }
 });
-
-
 
 app.get('/api/popup/excel', async (req, res) => {
     try {
@@ -516,9 +569,9 @@ app.get('/api/popup/excel', async (req, res) => {
     }
 });
 
-
-
-// 🚀 실행부: 프로세스 유지 모드로 변경
+// ==========================================
+// 5. 서버 실행부
+// ==========================================
 connectDB().then(async () => {
     console.log('⏳ 엑셀 데이터를 DB로 전송 중입니다...');
 
