@@ -283,8 +283,8 @@
             <div class="form-group">
                 <label>상품 선택</label>
                 <select id="product-input" onchange="updateColorOptions()">
-                    <option value="마인드 필로우">샐리필 마인드 필로우 (69,000원)</option>
-                    <option value="마인드 바디필로우">샐리필 마인드 바디필로우 (69,000원)</option>
+                    <option value="마인드 필로우">샐리필 마인드 필로우 (59,000원)</option>
+                    <option value="마인드 바디필로우">샐리필 마인드 바디필로우 (65,000원)</option>
                 </select>
             </div>
             <div class="form-group">
@@ -294,7 +294,7 @@
                 </select>
             </div>
             <div class="form-group">
-                <label>수량 (1개 = 69,000원)</label>
+                <label id="qty-label">수량 선택</label>
                 <input type="number" id="qty-input" min="1" value="1">
             </div>
             <button class="add-btn" onclick="addToCart()">+ 여기에 담기</button>
@@ -352,7 +352,11 @@
         }
 
         let cart = [];
-        const PRICE = 69000;
+        const GET_PRICE = (product) => {
+            if (product === '마인드 필로우') return 59000;
+            if (product === '마인드 바디필로우') return 65000;
+            return 69000;
+        };
         let serverInventory = {};
 
         async function fetchInventory() {
@@ -413,7 +417,8 @@
             }
 
             cart.forEach((item, index) => {
-                const subTotal = item.qty * PRICE;
+                const itemPrice = GET_PRICE(item.product);
+                const subTotal = item.qty * itemPrice;
                 total += subTotal;
                 list.innerHTML += `
                     <div class="cart-item">

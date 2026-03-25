@@ -314,7 +314,7 @@ app.post('/api/popup/sales', async (req, res) => {
         // items is an array of { product, color, qty }
         const dbOnline = mongoClient.db(ONLINE_DB_NAME);
         const popupCol = dbOnline.collection('popup_sales');
-        
+
         if (!items || !items.length) {
             return res.status(400).json({ success: false, message: '상품이 없습니다.' });
         }
@@ -326,7 +326,10 @@ app.post('/api/popup/sales', async (req, res) => {
         const isoDate = `${year}-${month}-${day}`;
 
         const newSales = items.map(item => {
-            const price = 69000;
+            let price = 69000;
+            if (item.product === '마인드 필로우') price = 59000;
+            else if (item.product === '마인드 바디필로우') price = 65000;
+
             return {
                 date: isoDate,
                 timestamp: now,
@@ -455,16 +458,18 @@ app.get('/api/popup/data', async (req, res) => {
     }
 });
 
+
+
 app.get('/api/popup/excel', async (req, res) => {
     try {
         const dbOnline = mongoClient.db(ONLINE_DB_NAME);
         const popupCol = dbOnline.collection('popup_sales');
-        
+
         const start = req.query.start;
         const end = req.query.end;
 
         const allSales = await popupCol.find({}).sort({ timestamp: -1 }).toArray();
-        
+
         let sales = allSales;
         if (start || end) {
             sales = allSales.filter(s => {
