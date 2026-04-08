@@ -490,7 +490,7 @@ app.get('/api/popup/data', async (req, res) => {
         let totalRevenue = 0;
 
         sales.forEach(sale => {
-            const date = new Date(sale.timestamp).toISOString().split('T')[0];
+            const date = sale.date || new Date(sale.timestamp).toISOString().split('T')[0];
 
             if (!dailyData[date]) {
                 dailyData[date] = { qty: 0, revenue: 0, cancelQty: 0, cancelRevenue: 0 };
