@@ -479,9 +479,9 @@ app.get('/api/popup/data', async (req, res) => {
         let sales = allSales;
         if (start || end) {
             sales = allSales.filter(s => {
-                const dt = s.timestamp;
-                if (start && dt < start + 'T00:00:00.000Z') return false;
-                if (end && dt > end + 'T23:59:59.999Z') return false;
+                const sDate = s.date || new Date(s.timestamp).toISOString().split('T')[0];
+                if (start && sDate < start) return false;
+                if (end && sDate > end) return false;
                 return true;
             });
         }
@@ -526,9 +526,9 @@ app.get('/api/popup/excel', async (req, res) => {
         let sales = allSales;
         if (start || end) {
             sales = allSales.filter(s => {
-                const dt = s.timestamp;
-                if (start && dt < start + 'T00:00:00.000Z') return false;
-                if (end && dt > end + 'T23:59:59.999Z') return false;
+                const sDate = s.date || new Date(s.timestamp).toISOString().split('T')[0];
+                if (start && sDate < start) return false;
+                if (end && sDate > end) return false;
                 return true;
             });
         }

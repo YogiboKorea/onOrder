@@ -18,11 +18,16 @@
             --danger: #E53E3E;
             --success: #38A169;
             --border: #E2E8F0;
-            --shadow: 0 10px 25px -5px rgba(0,0,0,0.05), 0 4px 6px -2px rgba(0,0,0,0.03);
+            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
             --radius: 20px;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Pretendard', -apple-system, sans-serif; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Pretendard', -apple-system, sans-serif;
+        }
 
         body {
             background: linear-gradient(135deg, #f6f8fd 0%, #f1f5f9 100%);
@@ -39,12 +44,12 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: rgba(255,255,255,0.85);
+            background: rgba(255, 255, 255, 0.85);
             backdrop-filter: blur(10px);
             padding: 1.25rem 1.75rem;
             border-radius: 16px;
             box-shadow: var(--shadow);
-            border: 1px solid rgba(255,255,255,0.7);
+            border: 1px solid rgba(255, 255, 255, 0.7);
             flex-wrap: wrap;
             gap: 1rem;
         }
@@ -63,8 +68,14 @@
             .container {
                 grid-template-columns: 1fr;
             }
-            body { padding: 1rem 0.75rem; }
-            header { padding: 1rem; }
+
+            body {
+                padding: 1rem 0.75rem;
+            }
+
+            header {
+                padding: 1rem;
+            }
         }
 
         /* ===== HEADER ELEMENTS ===== */
@@ -88,7 +99,14 @@
             display: inline-block;
             white-space: nowrap;
         }
-        .btn-link:hover { background: #E2E8F0; color: #2D3748; }
+
+        .btn-link:hover {
+            background: #E2E8F0;
+            color: #2D3748;
+        }
+        
+        .btn-link.active-link { background: var(--primary); color: white; border-color: var(--primary); }
+
 
         button.export-btn {
             background: linear-gradient(135deg, #38A169 0%, #276749 100%);
@@ -99,11 +117,15 @@
             font-weight: 700;
             cursor: pointer;
             transition: all 0.2s;
-            box-shadow: 0 4px 6px rgba(56,161,105,0.25);
+            box-shadow: 0 4px 6px rgba(56, 161, 105, 0.25);
             white-space: nowrap;
             font-size: 0.9rem;
         }
-        button.export-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(56,161,105,0.3); }
+
+        button.export-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(56, 161, 105, 0.3);
+        }
 
         /* ===== CARDS ===== */
         .card {
@@ -111,7 +133,7 @@
             padding: 1.75rem;
             border-radius: var(--radius);
             box-shadow: var(--shadow);
-            border: 1px solid rgba(255,255,255,0.7);
+            border: 1px solid rgba(255, 255, 255, 0.7);
         }
 
         h2 {
@@ -123,6 +145,7 @@
             align-items: center;
             gap: 0.5rem;
         }
+
         h2::before {
             content: "";
             display: block;
@@ -140,12 +163,14 @@
             gap: 0.75rem;
             margin-bottom: 1.75rem;
         }
+
         .stat-box {
             background: linear-gradient(145deg, #ffffff, #f8fafc);
             padding: 1.1rem;
             border-radius: 14px;
             border: 1px solid var(--border);
         }
+
         .stat-box .label {
             font-size: 0.75rem;
             color: var(--text-muted);
@@ -154,6 +179,7 @@
             margin-bottom: 0.35rem;
             word-break: keep-all;
         }
+
         .stat-box .value {
             font-size: 1.5rem;
             font-weight: 800;
@@ -162,7 +188,13 @@
         }
 
         /* ===== INVENTORY LIST ===== */
-        .inv-list { list-style: none; display: flex; flex-direction: column; gap: 0.6rem; }
+        .inv-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+        }
+
         .inv-item {
             display: flex;
             justify-content: space-between;
@@ -174,6 +206,7 @@
             font-size: 0.9rem;
             font-weight: 500;
         }
+
         .badge {
             background: #EBF4FF;
             color: var(--primary);
@@ -183,14 +216,42 @@
             font-size: 0.82rem;
             white-space: nowrap;
         }
-        .badge.low { background: #FEE2E2; color: var(--danger); }
+
+        .badge.low {
+            background: #FEE2E2;
+            color: var(--danger);
+        }
 
         /* ===== TABLE ===== */
-        .table-wrapper { overflow-x: auto; border-radius: 12px; border: 1px solid var(--border); background: white; }
-        .clickable-row { cursor: pointer; transition: 0.15s; }
-        .clickable-row:hover { background-color: #EDF2F7; }
-        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; min-width: 640px; }
-        th, td { padding: 0.9rem 1rem; text-align: left; }
+        .table-wrapper {
+            overflow-x: auto;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: white;
+        }
+
+        .clickable-row {
+            cursor: pointer;
+            transition: 0.15s;
+        }
+
+        .clickable-row:hover {
+            background-color: #EDF2F7;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+            min-width: 640px;
+        }
+
+        th,
+        td {
+            padding: 0.9rem 1rem;
+            text-align: left;
+        }
+
         th {
             background: #F8FAFC;
             color: var(--text-muted);
@@ -201,32 +262,67 @@
             border-bottom: 1px solid var(--border);
             white-space: nowrap;
         }
-        td { border-bottom: 1px solid var(--border); vertical-align: top; padding-top: 1rem; }
-        td:nth-child(3) { white-space: normal; min-width: 220px; line-height: 1.5; }
-        tr:last-child td { border-bottom: none; }
+
+        td {
+            border-bottom: 1px solid var(--border);
+            vertical-align: top;
+            padding-top: 1rem;
+        }
+
+        td:nth-child(3) {
+            white-space: normal;
+            min-width: 220px;
+            line-height: 1.5;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
 
         /* ===== STATUS BADGES ===== */
         .status-sale {
-            color: var(--success); font-weight: 700; background: #D1FAE5;
-            padding: 0.3rem 0.6rem; border-radius: 6px; font-size: 0.75rem;
-            display: inline-block; white-space: nowrap;
+            color: var(--success);
+            font-weight: 700;
+            background: #D1FAE5;
+            padding: 0.3rem 0.6rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            display: inline-block;
+            white-space: nowrap;
         }
+
         .status-cancel {
-            color: var(--danger); font-weight: 700; background: #FEE2E2;
-            padding: 0.3rem 0.6rem; border-radius: 6px; font-size: 0.75rem;
-            display: inline-block; text-decoration: line-through; white-space: nowrap;
+            color: var(--danger);
+            font-weight: 700;
+            background: #FEE2E2;
+            padding: 0.3rem 0.6rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            display: inline-block;
+            text-decoration: line-through;
+            white-space: nowrap;
         }
 
         /* ===== CANCEL BUTTON ===== */
         .cancel-btn {
-            background: white; color: var(--danger);
-            border: 1px solid #FECACA; padding: 0.4rem 0.8rem;
-            font-size: 0.8rem; border-radius: 8px; font-weight: 600;
-            cursor: pointer; transition: 0.2s;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            background: white;
+            color: var(--danger);
+            border: 1px solid #FECACA;
+            padding: 0.4rem 0.8rem;
+            font-size: 0.8rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
             white-space: nowrap;
         }
-        .cancel-btn:hover { background: #FEE2E2; border-color: var(--danger); transform: translateY(-1px); }
+
+        .cancel-btn:hover {
+            background: #FEE2E2;
+            border-color: var(--danger);
+            transform: translateY(-1px);
+        }
     </style>
 </head>
 
@@ -245,14 +341,13 @@
                     style="padding: 0.65rem 1rem; width: auto; font-size: 0.85rem; border: 1px solid var(--border); border-radius: 10px;">
                 <button class="export-btn"
                     style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%); box-shadow: 0 4px 6px rgba(90, 103, 216, 0.25); padding: 0.65rem 1rem;"
-                    onclick="fetchDashboard()">조회</button>
+                    onclick="executeSearch()">조회</button>
                 <button class="export-btn" onclick="downloadExcel()">엑셀 다운로드</button>
             </div>
-            <div style="display: flex; gap: 0.3rem;">
-                <button class="btn-link" onclick="setDate('2026-04-03')">4/3 (금)</button>
-                <button class="btn-link" onclick="setDate('2026-04-04')">4/4 (토)</button>
-                <button class="btn-link" onclick="setDate('2026-04-05')">4/5 (일)</button>
-                <button class="btn-link" onclick="setDate('', '')">전체 기간</button>
+            <div style="display: flex; gap: 0.3rem;" id="date-buttons">
+                <button class="btn-link" onclick="setDate('2026-04-04', '2026-04-04', this)">4/4 (토)</button>
+                <button class="btn-link" onclick="setDate('2026-04-05', '2026-04-05', this)">4/5 (일)</button>
+                <button class="btn-link active-link" onclick="setDate('', '', this)">전체 기간</button>
             </div>
         </div>
     </header>
@@ -293,16 +388,22 @@
                             </tr>
                         </thead>
                         <tbody id="daily-body">
-                            <tr><td colspan="6" style="text-align:center; color:var(--text-muted);">조회된 데이터가 없습니다.</td></tr>
+                            <tr>
+                                <td colspan="6" style="text-align:center; color:var(--text-muted);">조회된 데이터가 없습니다.</td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
 
             <div class="card">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+                <div
+                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
                     <h2 id="history-title" style="margin-bottom: 0;">최근 판매 내역</h2>
-                    <button class="btn-link" style="font-size:0.85rem; background:white; border:1px solid var(--border);" onclick="if(window.currentSalesData) renderHistory(window.currentSalesData, '최근 판매 내역');">초기화 (전체보기)</button>
+                    <button class="btn-link"
+                        style="font-size:0.85rem; background:white; border:1px solid var(--border);"
+                        onclick="if(window.currentSalesData) renderHistory(window.currentSalesData, '최근 판매 내역');">초기화
+                        (전체보기)</button>
                 </div>
                 <div class="table-wrapper">
                     <table>
@@ -325,9 +426,22 @@
     <script>
         const formatMem = num => num.toLocaleString('ko-KR');
 
-        function setDate(start, end) {
+        function setDate(start, end, btnElement) {
             document.getElementById('start-date').value = start;
             document.getElementById('end-date').value = end !== undefined ? end : start;
+            
+            if (btnElement) {
+                document.querySelectorAll('#date-buttons .btn-link').forEach(btn => btn.classList.remove('active-link'));
+                btnElement.classList.add('active-link');
+            } else {
+                document.querySelectorAll('#date-buttons .btn-link').forEach(btn => btn.classList.remove('active-link'));
+            }
+
+            fetchDashboard();
+        }
+
+        function executeSearch() {
+            document.querySelectorAll('#date-buttons .btn-link').forEach(btn => btn.classList.remove('active-link'));
             fetchDashboard();
         }
 
